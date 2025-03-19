@@ -12,7 +12,7 @@ VIDEO_SOURCE = r'测试视频/捕鱼0.mp4'
 class VideoConfig:
     VIDEO_INTERVAL = 1800  # 视频分段时长(秒)
     ANALYSIS_INTERVAL = 10  # 分析间隔(秒)
-    BUFFER_DURATION = 11  # 滑窗分析时长（实际模型分析视频时长）
+    BUFFER_DURATION = 11  # 滑窗分析时长（实际模型分析视频时长）#强制抽帧，每秒一帧率
     WS_RETRY_INTERVAL = 3  # WebSocket重连间隔(秒)
     MAX_WS_QUEUE = 100  # 消息队列最大容量
     JPEG_QUALITY = 70  # JPEG压缩质量

@@ -11,7 +11,8 @@ import time
 import numpy as np
 import json
 import httpx
-from config import APIConfig, RAGConfig
+from config import APIConfig, RAGConfig,VideoConfig
+
 
 
 def frames_to_base64(frames,fps,timestamps):
@@ -43,6 +44,55 @@ def frames_to_base64(frames,fps,timestamps):
         video_base64 = base64.b64encode(video_file.read()).decode('utf-8')
     
     return video_base64
+
+
+#强制抽取关键帧帧，每秒一帧率
+async def video_chat_async_limit_frame(text, frames,timestamps,fps=20):
+
+    video_base64 = frames_to_base64(frames,fps,timestamps)
+
+
+    #url = "http://172.16.10.44:8085/v1/chat/completions"
+    url = APIConfig.QWEN_API_URL
+    headers = {
+        "Content-Type": "application/json",
+        "authorization": APIConfig.QWEN_API_KEY
+    }
+    model = APIConfig.QWEN_MODEL
+
+    data_image = []
+    frame_count = int(VideoConfig.BUFFER_DURATION)
+    for i in range(frame_count):
+        frame = frames[(len(frames)//frame_count)*i]
+        image_path = 'output_frame.jpg'
+        cv2.imwrite(image_path, frame)
+        with open(image_path,'rb') as file:
+            image_base64 = "data:image/jpeg;base64,"+ base64.b64encode(file.read()).decode('utf-8')
+        data_image.append(image_base64)
+        
+    content =  [{"type": "text", "text": text}] + [{"type": "image_url","image_url": {"url":i}} for  i in data_image]
+      
+
+    # 构建API请求的URL和Headers
+
+    # 构建请求体
+    data = {
+        "model": model,  # 模型名称
+        "vl_high_resolution_images":False,
+        "messages": [
+            {
+                "role": "user",
+
+                "content": content,
+            }
+        ],
+    }
+
+    async with httpx.AsyncClient(timeout=httpx.Timeout(60.0)) as client:
+        response = await client.post(url, headers=headers, json=data)
+        response_data = response.json()
+        #print(response_data)
+        return response_data['choices'][0]['message']['content']
 
 
 

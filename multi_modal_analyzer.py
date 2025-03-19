@@ -17,7 +17,7 @@ import os
 import datetime
 import asyncio
 
-from utility import video_chat_async,chat_request,insert_txt
+from utility import video_chat_async,chat_request,insert_txt,video_chat_async_limit_frame
 from config import RAGConfig
 
 # 从配置文件加载提示词
@@ -58,7 +58,7 @@ class MultiModalAnalyzer:
             histroy = "历史视频内容总结:"+Recursive_summary+"\n\n当前时间段：" + i['start_time']+"  - " + i['end_time'] + "\n该时间段视频描述如下：" +i['description'] + "\n\n该时间段异常提醒:"+i['is_alert']
         
         time_temp = time.time()
-        tasks = [chat_request(prompt_summary.format(histroy=histroy)), video_chat_async(prompt_vieo,frames,timestamps,fps=fps)]
+        tasks = [chat_request(prompt_summary.format(histroy=histroy)), video_chat_async_limit_frame(prompt_vieo,frames,timestamps,fps=fps)]
         results = await asyncio.gather(*tasks)
        
         Recursive_summary =results[0]
