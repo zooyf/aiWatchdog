@@ -1,3 +1,7 @@
+https://github.com/QwenLM/Qwen2.5-VL
+
+
+
 [English](readme_en.md) | 中文
 
 # 智能视频监控预警系统
